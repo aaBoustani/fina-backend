@@ -1,6 +1,7 @@
 import { createLogger, format, transports } from 'winston';
 import expressWinston from 'express-winston';
 
+
 const logger = createLogger({
     level: 'info',
     format: format.combine(
@@ -25,4 +26,3 @@ const loggerMiddleware = expressWinston.logger({
 });
 
 export default loggerMiddleware;
-

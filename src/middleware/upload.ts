@@ -17,12 +17,9 @@ const upload = multer({
         const filetypes = /jpeg|jpg|png/;
         const mimetype = filetypes.test(file.mimetype);
         const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
-
-        if (mimetype && extname) {
-            return cb(null, true);
-        } else {
-            cb(new Error('Only images are allowed'));
-        }
+        return (mimetype && extname)
+            ? cb(null, true)
+            : cb(new Error('Only images are allowed'));
     }
 });
 

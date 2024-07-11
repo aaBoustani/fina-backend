@@ -2,10 +2,10 @@ import 'dotenv/config'
 import express, { Request, Response } from 'express';
 import cors from 'cors';
 import upload from './middleware/upload';
-import { getNutritionalAnalysis } from './services/openAI';
 import { getFileBase64 } from './lib';
 import sample from '../data/sample.json';
 import { loggerMiddleware } from './lib';
+
 
 const app = express();
 const port = process.env.PORT || 4000;
