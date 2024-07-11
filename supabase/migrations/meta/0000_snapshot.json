@@ -1,5 +1,5 @@
 {
-  "id": "c67d7b8f-e049-408c-9455-78cf0aac546c",
+  "id": "6d43d6f8-5f16-4e24-88de-be1fe8140fdd",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -10,9 +10,10 @@
       "columns": {
         "id": {
           "name": "id",
-          "type": "serial",
+          "type": "uuid",
           "primaryKey": true,
-          "notNull": true
+          "notNull": true,
+          "default": "gen_random_uuid()"
         },
         "dish_name": {
           "name": "dish_name",
@@ -75,9 +76,10 @@
       "columns": {
         "id": {
           "name": "id",
-          "type": "serial",
+          "type": "uuid",
           "primaryKey": true,
-          "notNull": true
+          "notNull": true,
+          "default": "gen_random_uuid()"
         },
         "image": {
           "name": "image",
@@ -87,7 +89,7 @@
         },
         "analysis_id": {
           "name": "analysis_id",
-          "type": "integer",
+          "type": "uuid",
           "primaryKey": false,
           "notNull": false
         },

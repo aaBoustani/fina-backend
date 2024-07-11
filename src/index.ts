@@ -5,7 +5,7 @@ import upload from './middleware/upload';
 import { getFileBase64 } from './lib';
 import sample from '../data/sample.json';
 import { loggerMiddleware } from './lib';
-
+import { saveUpload } from './services/storage';
 
 const app = express();
 const port = process.env.PORT || 4000;
@@ -21,14 +21,17 @@ app.post('/uploads', (req: Request, res: Response) => {
         } else if (!req.file) {
             return res.status(400).json({ error: 'Please upload a file' });
         }
-        return res.status(201).json({ id: req.file.filename });
+        const imageBase64 = req.file.buffer.toString('base64');
+        return saveUpload(imageBase64)
+            .then(id => res.status(201).json({ id }))
+            .catch(error => res.status(500).json({ error: 'Error saving the image' }));
     });
 });
 
 app.get('/analysis/:filename', (req: Request, res: Response) => {
     const filename = req.params.filename;
     try {
-        const imageBase64 = getFileBase64(`data/uploads/${filename}`);
+        // const imageBase64 = getFileBase64(`data/uploads/${filename}`);
         // getNutritionalAnalysis(imageBase64)
         //     .then((response) => res.status(200).json(response))
         //     .catch((error) => {

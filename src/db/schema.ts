@@ -1,4 +1,4 @@
-import { customType, integer, serial, timestamp } from "drizzle-orm/pg-core";
+import { customType, timestamp, uuid } from "drizzle-orm/pg-core";
 import { text } from "drizzle-orm/pg-core";
 import { pgTable } from "drizzle-orm/pg-core/table";
 import { relations } from "drizzle-orm/relations";
@@ -30,8 +30,8 @@ const object = <TData>(name: string) => customType<{ data: TData }>({
     toDriver(value: TData) { return JSON.stringify(value) }
 })(name);
 
-export const analysis = pgTable("analysis", {
-    id: serial("id").primaryKey(),
+const analysis = pgTable("analysis", {
+    id: uuid('id').defaultRandom().primaryKey(),
     dishName: text("dish_name").notNull(),
     macros: object<Macros>("macros").notNull(),
     weight: text("weight").notNull(),
@@ -42,18 +42,33 @@ export const analysis = pgTable("analysis", {
     updatedAt: timestamp("updated_at").notNull().$onUpdate(() => new Date()),
 });
 
-export const analysisRelations = relations(analysis, ({ one }) => ({ upload: one(upload) }));
+const analysisRelations = relations(analysis, ({ one }) => ({ upload: one(uploadTable) }));
 
-export const upload = pgTable("upload", {
-    id: serial("id").primaryKey(),
+const uploadTable = pgTable("upload", {
+    id: uuid('id').defaultRandom().primaryKey(),
     image: text("image").notNull(),
-    analysisId: integer("analysis_id").references(() => analysis.id, { onDelete: 'cascade' }),
+    analysisId: uuid("analysis_id").references(() => analysis.id, { onDelete: 'cascade' }),
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at").notNull().$onUpdate(() => new Date()),
 });
 
-export type InsertAnalysis = typeof analysis.$inferInsert;
-export type SelectAnalysis = typeof analysis.$inferSelect;
+type InsertAnalysis = typeof analysis.$inferInsert;
+type SelectAnalysis = typeof analysis.$inferSelect;
 
-export type InsertUpload = typeof upload.$inferInsert;
-export type SelectUpload = typeof upload.$inferSelect;
+type InsertUpload = typeof uploadTable.$inferInsert;
+type SelectUpload = typeof uploadTable.$inferSelect;
+
+export {
+    Macros,
+    Energy,
+    NutritionalValue,
+
+    analysis,
+    uploadTable,
+    analysisRelations,
+
+    InsertAnalysis,
+    SelectAnalysis,
+    InsertUpload,
+    SelectUpload,
+}

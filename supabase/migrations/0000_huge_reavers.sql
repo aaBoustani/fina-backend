@@ -1,5 +1,5 @@
 CREATE TABLE IF NOT EXISTS "analysis" (
-	"id" serial PRIMARY KEY NOT NULL,
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"dish_name" text NOT NULL,
 	"macros" json NOT NULL,
 	"weight" text NOT NULL,
@@ -11,9 +11,9 @@ CREATE TABLE IF NOT EXISTS "analysis" (
 );
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "upload" (
-	"id" serial PRIMARY KEY NOT NULL,
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"image" text NOT NULL,
-	"analysis_id" integer,
+	"analysis_id" uuid,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp NOT NULL
 );

@@ -1,14 +1,14 @@
 import fs from 'fs';
 
-function getFileBase64(filePath: string): string {
+function getFileBase64(file: Express.Multer.File): string {
     try {
-        const data = fs.readFileSync(filePath);
+        const data = fs.readFileSync(file.path);
         return data.toString('base64');
     } catch (err) {
-        console.error(`Error reading file: ${filePath}`, err);
+        console.error(`Error reading file: ${file.filename}`, err);
         throw err;
     }
 }
 
 export { default as loggerMiddleware } from './logger';
-export { getFileBase64 }
+export { getFileBase64 };
