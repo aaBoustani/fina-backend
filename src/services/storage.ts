@@ -23,7 +23,7 @@ async function saveUpload(imageBase64: string, fileType: string) {
         logger.info(`Analysis saved for upload with id ${upload.id}`);
     } catch (error) {
         logger.error(`saveUpload: Could not analyze and save the upload with id ${upload.id}`);
-        logger.error(error);
+        throw new BackendError(`Error analyzing and saving the upload: ${error}`);
     }
     return upload.id;
 }
@@ -31,7 +31,6 @@ async function saveUpload(imageBase64: string, fileType: string) {
 async function getUploadWithAnalysis(uploadId: string) {
     try {
         const upload = await fetchUpload(uploadId, true);
-        logger.info(upload);
         return upload;
     } catch (error) {
         throw new BackendError(`Error getting the upload: ${error}`);
