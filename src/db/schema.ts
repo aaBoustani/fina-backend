@@ -2,35 +2,28 @@ import { customType, timestamp, uuid } from "drizzle-orm/pg-core";
 import { text } from "drizzle-orm/pg-core";
 import { pgTable } from "drizzle-orm/pg-core/table";
 import { relations } from "drizzle-orm/relations";
+import { Ingredient, Macros, Energy, NutritionalValue } from "$/src/types/dto";
 
-
-interface Macros {
-    fat: string;
-    carbs: string;
-    protein: string;
-}
-
-interface Energy {
-    calories: string;
-    kilojoules: string;
-}
-
-interface NutritionalValue {
-    name: string;
-    amount: string;
-}
-
-interface Ingredient {
-    name: string;
-    weight: string;
-}
 
 const object = <TData>(name: string) => customType<{ data: TData }>({
     dataType() { return "json" },
-    toDriver(value: TData) { return JSON.stringify(value) }
+    toDriver(value: TData) {
+        try {
+            return JSON.stringify(value);
+        } catch (error) {
+            return value;
+        }
+    },
+    fromDriver(value: any) {
+        try {
+            return JSON.parse(value);
+        } catch (error) {
+            return value;
+        }
+    }
 })(name);
 
-const analysis = pgTable("analysis", {
+const analysisTable = pgTable("analysis", {
     id: uuid('id').defaultRandom().primaryKey(),
     dishName: text("dish_name").notNull(),
     macros: object<Macros>("macros").notNull(),
@@ -42,33 +35,26 @@ const analysis = pgTable("analysis", {
     updatedAt: timestamp("updated_at").notNull().$onUpdate(() => new Date()),
 });
 
-const analysisRelations = relations(analysis, ({ one }) => ({ upload: one(uploadTable) }));
+const analysisRelations = relations(analysisTable, ({ one }) => ({ upload: one(uploadTable) }));
 
 const uploadTable = pgTable("upload", {
     id: uuid('id').defaultRandom().primaryKey(),
     image: text("image").notNull(),
-    analysisId: uuid("analysis_id").references(() => analysis.id, { onDelete: 'cascade' }),
+    analysisId: uuid("analysis_id").references(() => analysisTable.id, { onDelete: 'cascade' }),
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at").notNull().$onUpdate(() => new Date()),
 });
 
-type InsertAnalysis = typeof analysis.$inferInsert;
-type SelectAnalysis = typeof analysis.$inferSelect;
-
-type InsertUpload = typeof uploadTable.$inferInsert;
-type SelectUpload = typeof uploadTable.$inferSelect;
+const uploadRelations = relations(uploadTable, ({ one }) => ({
+    analysis: one(analysisTable, {
+        fields: [uploadTable.analysisId],
+        references: [analysisTable.id],
+    })
+}));
 
 export {
-    Macros,
-    Energy,
-    NutritionalValue,
-
-    analysis,
+    analysisTable,
     uploadTable,
     analysisRelations,
-
-    InsertAnalysis,
-    SelectAnalysis,
-    InsertUpload,
-    SelectUpload,
-}
+    uploadRelations,
+};

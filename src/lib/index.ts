@@ -1,14 +1,34 @@
-import fs from 'fs';
+import { logger } from './logger';
 
-function getFileBase64(file: Express.Multer.File): string {
-    try {
-        const data = fs.readFileSync(file.path);
-        return data.toString('base64');
-    } catch (err) {
-        console.error(`Error reading file: ${file.filename}`, err);
-        throw err;
+
+class BackendError extends Error {
+    functionName: string | undefined;
+
+    constructor(message: string) {
+        super(message);
+        this.name = "BackendError";
+        this.functionName = this.getFunctionName();
+
+        logger.error(`${this.functionName}: ${this.message}`);
+
+        Object.setPrototypeOf(this, new.target.prototype);
+    }
+
+    private getFunctionName(): string | undefined {
+        const errorObj = new Error();
+        const callerFunctionLine = errorObj.stack?.split("\n")[3];
+        if (callerFunctionLine) {
+            const functionNameMatch = callerFunctionLine.trim().match(/\((.+)\)/);
+            if (functionNameMatch) {
+                return functionNameMatch[1];
+            }
+        }
+        return undefined;
     }
 }
 
-export { default as loggerMiddleware } from './logger';
-export { getFileBase64 };
+
+export * from './logger';
+export {
+    BackendError,
+};

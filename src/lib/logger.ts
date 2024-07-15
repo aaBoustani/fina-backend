@@ -2,14 +2,18 @@ import { createLogger, format, transports } from 'winston';
 import expressWinston from 'express-winston';
 
 
+const myFormat = format.printf(({ level, message, label, timestamp }) => {
+    return `${timestamp} ${level}: ${message}`;
+});
+
 const logger = createLogger({
-    level: 'info',
+    level: 'debug',
     format: format.combine(
         format.timestamp({
             format: 'YYYY-MM-DD HH:mm:ss'
         }),
         format.colorize(),
-        format.json()
+        myFormat
     ),
     transports: [
         new transports.Console(),
@@ -20,9 +24,13 @@ const logger = createLogger({
 const loggerMiddleware = expressWinston.logger({
     winstonInstance: logger,
     // meta: true,
-    msg: 'HTTP {{req.method}} {{req.url}}',
+    msg: 'HTTP {{req.method}} {{req.url}} {{res.statusCode}} {{res.responseTime}}ms',
     // expressFormat: true,
     colorize: true,
 });
 
-export default loggerMiddleware;
+
+export {
+    loggerMiddleware,
+    logger,
+};
